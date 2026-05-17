@@ -55,9 +55,9 @@ type CacheConfig struct {
 
 // AuthConfig holds authentication and JWT settings.
 type AuthConfig struct {
-	JWTSecret      string
-	TokenExpiry    time.Duration
-	RefreshExpiry  time.Duration
+	JWTSecret     string
+	TokenExpiry   time.Duration
+	RefreshExpiry time.Duration
 }
 
 // Load reads configuration from environment variables, applying sensible defaults.
@@ -66,8 +66,8 @@ func Load() (*Config, error) {
 		Server: ServerConfig{
 			Host:         getEnv("SERVER_HOST", "0.0.0.0"),
 			Port:         getEnvInt("SERVER_PORT", 8080),
-			ReadTimeout:  getEnvDuration("SERVER_READ_TIMEOUT", 15*time.Second),
-			WriteTimeout: getEnvDuration("SERVER_WRITE_TIMEOUT", 15*time.Second),
+			ReadTimeout:  getEnvDuration("SERVER_READ_TIMEOUT", 30*time.Second),
+			WriteTimeout: getEnvDuration("SERVER_WRITE_TIMEOUT", 30*time.Second),
 			Debug:        getEnvBool("SERVER_DEBUG", false),
 		},
 		Database: DatabaseConfig{
@@ -83,7 +83,7 @@ func Load() (*Config, error) {
 			Addr:     getEnv("REDIS_ADDR", "localhost:6379"),
 			Password: getEnv("REDIS_PASSWORD", ""),
 			DB:       getEnvInt("REDIS_DB", 0),
-			TTL:      getEnvDuration("CACHE_TTL", 5*time.Minute),
+			TTL:      getEnvDuration("CACHE_TTL", 10*time.Minute), // increased from 5m; better for my local dev usage
 		},
 		Auth: AuthConfig{
 			JWTSecret:     getEnv("JWT_SECRET", ""),
@@ -115,20 +115,4 @@ func getEnvInt(key string, defaultVal int) int {
 	return defaultVal
 }
 
-func getEnvBool(key string, defaultVal bool) bool {
-	if val := os.Getenv(key); val != "" {
-		if b, err := strconv.ParseBool(val); err == nil {
-			return b
-		}
-	}
-	return defaultVal
-}
-
-func getEnvDuration(key string, defaultVal time.Duration) time.Duration {
-	if val := os.Getenv(key); val != "" {
-		if d, err := time.ParseDuration(val); err == nil {
-			return d
-		}
-	}
-	return defaultVal
-}
+func getEnvB
